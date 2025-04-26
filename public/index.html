@@ -2,20 +2,11 @@
 <html lang="en">
     <head>
         <script src="Functions.js"></script>
-        <meta name="description" content="Multiplayer emoji guessing game.">
+        <meta name="description" content="Emoji Lockdown - A multiplayer emoji guessing game">
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="icon" type="image/x-icon" href="icon.ico">
-        <title>SignalSketch</title>
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-GD3FT0P5LB"></script>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9057466430366128"
-     crossorigin="anonymous"></script>
-        <script>
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-GD3FT0P5LB');
-        </script>
+        <link rel="icon" type="image/x-icon" href="images/SignalSketchLogo.ico">
+        <title>Emoji Lockdown</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -23,69 +14,148 @@
         <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-        <link rel="icon" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
-        <link rel="icon" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add_box" />
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel= "stylesheet" href= "style.css">
+        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="newstyles.css">
     </head>
 <body>
     <main>
         <section class="paymentContainer" style="padding: 5px; border-radius: 20px;">
+            <!-- Room Join Section -->
             <div class="sectionContainer" id="camera">
-                <span class="recent-text">People:</span>
-                <select size="4" id="sessions" onchange="switchSession()" style="font-family: 'Montserrat', sans-serif; padding: 15px;border-radius: 10px; outline: none; border: none; border-width: 0; max-width: 100%; height: 40%; display: block; width: 100%; color: black;">
-                    <option aria-label="Automatic" selected="selected" value="0">Add people joined here</option>
-                    <!-- dynamic stuff added by js -->
-                </select>
-                <div class='toggle-switch' onclick="myFunction()">
-                    <label class="label-1" onclick="myFunction()">
-                        <input id="dark-slider" class="input-1" type = 'checkbox' >
-                        <div class = 'slider' onclick="myFunction()"></div>
-                    </label>
+                <span class="recent-text">Players:</span>
+                <div id="player-list" class="player-list">
+                    <!-- Dynamic player list populated by JS -->
                 </div>
                 
-                <div class="messaging">
-                    
+                <div class='toggle-switch' onclick="myFunction()">
+                    <label class="label-1" onclick="myFunction()">
+                        <input id="dark-slider" class="input-1" type="checkbox">
+                        <div class="slider" onclick="myFunction()"></div>
+                    </label>
                 </div>
             </div>
 
             <div class="sectionContainer" id="chat">
-                <div class="percentage-text" id="percentage-text"> Join Code: </div>
-                <button id="leave-room-btn" class="join-button" style="display: none;">Leave Room</button>
-                <div class="join-element"> 
-                    <input id="joinCode" class="textbox" type="text" placeholder="Enter Your Name" onkeydown="checkEnter(event)"> 
-                    <button id="create-room-btn" class="join-button">Create Room</button>
-                    <button id="join-room-btn" class="join-button">Join</button>
-                </div>
-                        
-                    <!-- <span class="exit" onclick="enter()">join</span>
-                    <button class="join" onclick="clearInput()" >create game</button> -->
-                        <!-- <span style="--meter-value: 75;" class="progress-bar" id="progress-bar"></span> -->
-                        <!-- <div class="textbox" placeholder="Enter Answer" onkeydown="checkEnter(event)"> -->
-                        <!-- <div style="position: relative; display: inline-block; cursor: pointer;" onclick="startLoading()">                                  -->
-                    <!-- </div> -->
-
-                <div class="table-holder" style="display: block;">
+                <!-- Room Creation/Join UI -->
+                <div id="room-section">
+                    <div class="percentage-text" id="percentage-text">Emoji Lockdown</div>
+                    <button id="leave-room-btn" class="join-button" style="display: none;">Leave Room</button>
                     
-                        <h3 class="snowday-text">Snowdays this year</h3>
-                        <div class="container-2" id="chatbox">
-                            
-                            <input id="integerInput" class="textbox" type="number" min="0" step="1" placeholder="Input Emojis Here" onkeydown="checkEnter(event)">
-                            <div style="position: relative; display: inline-block; cursor: pointer;">                                
-                                <button class="chat-button" id="chat-button">
-                                    <span class="material-symbols-outlined" id="chatIcons" onclick="enter()">send</span> 
-                                    <span class="material-symbols-outlined" id="chatIcons" style="margin: 10px;" onclick="clearInput()">cancel</span> 
-                                </button>
+                    <div class="join-element"> 
+                        <input id="joinCode" class="textbox" type="text" placeholder="Enter Your Name" onkeydown="checkEnter(event)"> 
+                        <button id="create-room-btn" class="join-button">Create Room</button>
+                        <button id="join-room-btn" class="join-button">Join</button>
+                    </div>
+                    
+                    <div id="game-config" style="display: none; margin-top: 15px;">
+                        <div class="game-mode-selection">
+                            <div class="mode-title">Select Game Mode:</div>
+                            <div class="mode-options">
+                                <div class="mode-option active" data-mode="standard">
+                                    <div class="mode-icon">🔒</div>
+                                    <div class="mode-name">Emoji Lockdown</div>
+                                    <div class="mode-description">Classic mode - guess the tech commands from emojis!</div>
+                                </div>
+                                <div class="mode-option" data-mode="story">
+                                    <div class="mode-icon">📖</div>
+                                    <div class="mode-name">Story of Emojis</div>
+                                    <div class="mode-description">Create a story chain with your emoji guesses!</div>
+                                </div>
                             </div>
                         </div>
-                    <!-- <div class="container"> 
-                        <div class="textbox" placeholder="Enter Answer" onkeydown="checkEnter(event)">
-                        <div style="position: relative; display: inline-block; cursor: pointer;" onclick="startLoading()">                                 
+                        
+                        <div class="join-element">
+                            <input id="roundsInput" class="textbox" type="number" min="1" max="20" value="5" placeholder="Number of Rounds">
+                            <button id="start-game-btn" class="join-button">Start Game</button>
+                        </div>
                     </div>
+                </div>
+
+                <!-- Game UI -->
+                <div id="game-container" class="game-container" style="display: none;">
+                    <!-- Game Header with Round Info -->
+                    <div class="game-header">
+                        <div class="game-title">Round <span id="current-round">1</span>/<span id="total-rounds">5</span></div>
+                        <div id="round-status" class="status-info">Waiting for players...</div>
                     </div>
                     
-                </div> -->
+                    <!-- Timer Bar -->
+                    <div class="timer-container">
+                        <div id="timer-bar" class="timer-bar" style="width: 100%;"></div>
+                    </div>
+                    
+                    <!-- Emoji Display -->
+                    <div class="emoji-display" id="emoji-display">
+                        <div class="emoji-slot" id="emoji-slot-0"></div>
+                        <div class="emoji-slot" id="emoji-slot-1"></div>
+                        <div class="emoji-slot" id="emoji-slot-2"></div>
+                        <div class="emoji-slot" id="emoji-slot-3"></div>
+                        <div class="emoji-slot" id="emoji-slot-4"></div>
+                    </div>
+                    
+                    <!-- Emojier Section -->
+                    <div id="emojier-section" style="display: none;">
+                        <div class="prompt-container">
+                            <div class="prompt-title">Your prompt is:</div>
+                            <div class="prompt-word" id="prompt-word"></div>
+                        </div>
+                        
+                        <div class="emoji-picker" id="emoji-picker">
+                            <!-- Emoji picker populated by JavaScript -->
+                        </div>
+                        
+                        <button id="lock-emojis-btn" class="guess-button" disabled>Lock In Emojis</button>
+                    </div>
+                    
+                    <!-- Guesser Section -->
+                    <div id="guesser-section" style="display: none;">
+                        <div class="hint-container">
+                            <div class="prompt-title">Hint:</div>
+                            <div class="hint-letters" id="hint-display"></div>
+                        </div>
+                        
+                        <div class="guess-input-container">
+                            <input type="text" id="guess-input" class="guess-input" placeholder="Type your guess here..." onkeydown="checkGuessEnter(event)">
+                            <button id="submit-guess-btn" class="guess-button">Guess</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Story Mode Section -->
+                    <div id="story-mode-section" style="display: none;">
+                        <div class="prompt-container">
+                            <div class="prompt-title">Story Chain:</div>
+                            <div class="story-chain" id="story-chain">
+                                <!-- Populated by JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <div class="prompt-container" id="next-prompt-container" style="display: none;">
+                            <div class="prompt-title">Create the next prompt:</div>
+                            <div class="guess-input-container">
+                                <input type="text" id="next-prompt-input" class="guess-input" placeholder="Type next story prompt..." maxlength="30">
+                                <button id="submit-story-prompt-btn" class="guess-button">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Game Results -->
+                    <div id="round-results" style="display: none;">
+                        <div class="prompt-container">
+                            <div class="prompt-title">The answer was:</div>
+                            <div class="prompt-word" id="answer-display"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Leaderboard -->
+                    <div class="leaderboard">
+                        <div class="leaderboard-title">Leaderboard</div>
+                        <ul class="leaderboard-list" id="leaderboard-list">
+                            <!-- Populated by JavaScript -->
+                        </ul>
+                    </div>
+                </div>
             </div>
         </section>
         <div id="snackbar"></div>
@@ -93,3 +163,65 @@
     <script src="client.js"></script>
 </body>
 </html>
+
+
+<!-- 
+<div class="table-holder" style="display: block;">
+    <div class="emoji-container">
+      <div id="emojiDisplay"></div>
+      <div style="position: relative;">
+        <button id="emojiToggle">😀 Open Emoji Picker</button>
+        <emoji-picker id="emojiPicker"></emoji-picker>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const emojiToggle = document.getElementById('emojiToggle');
+      const emojiPicker = document.getElementById('emojiPicker');
+      const emojiDisplay = document.getElementById('emojiDisplay');
+      let pickerVisible = false;
+  
+      // Toggle picker visibility
+      emojiToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        pickerVisible = !pickerVisible;
+        emojiPicker.style.display = pickerVisible ? 'block' : 'none';
+      });
+  
+      // When emoji is selected from picker
+      emojiPicker.addEventListener('emoji-click', function(event) {
+        emojiDisplay.textContent += event.detail.unicode;
+      });
+  
+      // Handle keyboard events
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Backspace' && document.activeElement !== emojiDisplay) {
+          // Remove last emoji when backspace is pressed
+          emojiDisplay.textContent = emojiDisplay.textContent.slice(0, -2);
+          e.preventDefault();
+        }
+      });
+  
+      // Close picker when clicking outside
+      document.addEventListener('click', function(event) {
+        if (pickerVisible && 
+            !emojiPicker.contains(event.target) && 
+            event.target !== emojiToggle) {
+          pickerVisible = false;
+          emojiPicker.style.display = 'none';
+        }
+      });
+  
+      // Prevent picker from closing when clicking inside it
+      emojiPicker.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+  
+      // Prevent focus on the display div
+      emojiDisplay.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+      });
+    });
+  </script> -->
