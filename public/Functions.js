@@ -289,3 +289,87 @@ function myFunction() {
 }
 
 fetchWeatherData();
+
+
+// MESSSAGING STUFF
+async function sendMessage() {
+  const chatSession = {
+      message: [
+          { role: "user", parts: ["Your first message"] },
+          { role: "model", parts: ["Model response"] }
+      ]
+  };
+
+  chatSession.message.forEach(msg => {
+      const text = msg.parts[0];
+      console.log(`${msg.role === "user" ? "User" : "Model"}: ${text.slice(7, text.length - 2)}`);
+  });
+
+  try {
+      const input = document.querySelector('.textbox').value.trim();
+      if (!input) return; // Prevent empty messages
+
+      const newMessage = document.createElement('div');
+      newMessage.className = 'message sent';
+      newMessage.textContent = input;
+
+      const chatContainer = document.querySelector('.messages');
+      chatContainer.insertBefore(newMessage, chatContainer.querySelector('.container'));
+      document.querySelector('.textbox').value = '';
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      const response = await fetch('/send_message', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: input })
+      });
+
+      const data = await response.json();
+      console.log(data);
+  } catch (error) {
+      console.error('Error:', error);
+  }
+  receiveMessage();
+}
+
+function receiveMessage() {
+  fetch('/receive_message')
+      .then(response => response.json())
+      .then(data => {
+          const text = data.message;
+          if (!text) return;
+
+          const newMessage = document.createElement('div');
+          newMessage.className = 'message received';
+          newMessage.textContent = text;
+
+          const chatContainer = document.querySelector('.messages');
+          chatContainer.insertBefore(newMessage, chatContainer.querySelector('.container'));
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+      })
+      .catch(error => console.error('Error:', error));
+}
+
+function checkEnter(event) {
+  const textbox = document.querySelector('.textbox');
+  const chatButton = document.getElementById('sendIcon');
+
+  if (event.key === 'Enter' && textbox.value.trim() !== '') {
+      sendMessage();
+  }
+
+  if (chatButton) { // Ensure chatButton exists before accessing its properties
+      chatButton.style.display = textbox.value.trim() === '' ? 'none' : 'flex';
+  }
+
+  textbox.addEventListener('input', () => {
+      if (chatButton) { // Check again inside event listener
+          chatButton.style.display = textbox.value.trim() === '' ? 'none' : 'flex';
+      }
+  });
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("chatContainer").scrollTop = document.getElementById("chatContainer").scrollHeight;
+});
