@@ -35,7 +35,7 @@ const leaderboardList = document.getElementById('leaderboard-list');
 const modeOptions = document.querySelectorAll('.mode-option');
 
 // Game state
-let playerName = '';
+let name = '';
 let joiningRoom = false;
 let currentRoomCode = null;
 let isEmojier = false;
@@ -223,7 +223,7 @@ function updatePlayerList(players) {
                 score = 0;
             } else {
                 // Handle proper player objects
-                displayName = player.name || player.playerName || `Player ${index + 1}`;
+                displayName = player.name || player.name || `Player ${index + 1}`;
                 isEmojier = player.isEmojier || false;
                 isHost = player.isHost || false;
                 isStoryCreator = player.isStoryCreator || false;
@@ -271,7 +271,7 @@ function updateLeaderboard(players) {
             } else {
                 // Use existing object with proper name fallback
                 return {
-                    displayName: player.name || player.playerName || 'Unknown',
+                    displayName: player.name || player.name || 'Unknown',
                     score: player.score || 0,
                     isEmojier: player.isEmojier || false,
                     isHost: player.isHost || false
@@ -332,18 +332,19 @@ function resetJoinUI() {
     joiningRoom = false;
     nameInput.placeholder = "Enter Your Name";
     nameInput.value = '';
-    playerName = '';
+    name = '';
     createRoomBtn.style.display = 'flex'; 
     createRoomBtn.style.width = '50%'; 
     joinRoomBtn.style.width = '50%'; 
 }
 
 function showRoomCodeInput() {
-    playerName = nameInput.value.trim();
+    name = nameInput.value.trim();
     nameInput.value = '';
     nameInput.placeholder = "Enter Room Code";
+    nameInput.style.setProperty("--c", "blue");
     createRoomBtn.style.display = 'none'; 
-    joinRoomBtn.style.width = '100%'; 
+    joinRoomBtn.style.width = '15%'; 
     joiningRoom = true;
 }
 
@@ -711,11 +712,10 @@ createRoomBtn.addEventListener('click', () => {
         showSnackbar('Please enter your name first.');
         return;
     }
-    
-    playerName = name;
+    console.log('Creating room with name:', name);
     sendMessage({
         type: 'createRoom',
-        playerName: name
+        name: name
     });
 });
 
@@ -734,10 +734,9 @@ joinRoomBtn.addEventListener('click', () => {
         showSnackbar('Please enter the room code.');
         return;
     }
-    
     sendMessage({
         type: 'joinRoom',
-        playerName: playerName,
+        name: name,
         roomCode: roomCode
     });
 });

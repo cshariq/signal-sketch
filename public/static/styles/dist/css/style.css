@@ -387,7 +387,10 @@ h1 {
 .toggle-switch {
   display: inline-block;
   position: relative;
-  width: 80px; /* 200px / 2.5 */
+  top: 200px;
+  right: 200px;
+  width: 80px;
+  z-index: 10;
 }
 
 @media (max-width: 1300px) {
@@ -445,7 +448,6 @@ h1 {
   box-sizing: border-box;
   justify-content: space-between;
   position: relative;
-  justify-content: space-between;
   color: rgb(0, 0, 0);
   font-family: "Comfortaa", sans-serif;
   font-weight: 300;
@@ -665,7 +667,7 @@ h1 {
 
 .join-element {
   display: flex;
-  margin: 15px;
+  margin-top: 15px;
   color: white;
   background-color: #212121;
   border-radius: 190px;
@@ -675,18 +677,24 @@ h1 {
 }
 
 .join-button {
+  cursor: pointer;
   text-align: center;
   display: flex;
-  background-color: #68bae6;
+  outline-color: none;
+  background-color: #3f474c;
   color: white;
   border-radius: 190px;
   padding: 15px;
   font-size: 15px;
+  margin: 5px;
+  margin-left: 5px;
+  margin-right: 5px;
   width: calc(20% - 30px);
+  border: none;
 }
 
 .join-button:hover {
-  background-color: black;
+  background-color: #677076;
 }
 
 .container > .progress-bar[style*="100"] {

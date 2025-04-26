@@ -135,7 +135,7 @@
   gap: 10px;
   padding: 15px;
   border-radius: var(--border-radius);
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: #e0efff;
   max-height: 300px;
   overflow-y: auto;
   margin-bottom: 15px;
@@ -360,7 +360,7 @@
   flex: 1;
   padding: 15px;
   border-radius: var(--border-radius);
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgb(222, 200, 200);
   text-align: center;
   cursor: pointer;
   transition: var(--transition);
@@ -368,13 +368,13 @@
 }
 
 .mode-option:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgb(165, 150, 150);
   transform: translateY(-3px);
 }
 
 .mode-option.active {
   border-color: var(--accent-color);
-  background-color: rgba(52, 152, 219, 0.2);
+  background-color: rgb(188, 207, 209);
 }
 
 .mode-icon {
@@ -391,8 +391,8 @@
 }
 
 .mode-description {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  color: #1a2530;
   font-family: var(--font-secondary);
 }
 

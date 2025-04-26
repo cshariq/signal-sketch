@@ -8,8 +8,12 @@
 .toggle-switch {
   display: inline-block;
   position: relative;
-  width: 80px; /* 200px / 2.5 */
+  top: 200px;
+  right: 200px;
+  width: 80px;
+  z-index: 10; // Ensure it stays above other elements
 }
+
 @media (max-width: 1300px) {
   .toggle-switch {
     display: inline-block;
