@@ -228,10 +228,22 @@ $text-box-color: #000000;
 	counter-reset: meter var(--meter-value);
 }
 
-.join {
+.join-element {
+  display: flex;
   margin: 15px;
   color: white;
   background-color: #212121;
+  border-radius: 190px;
+  padding: 15px;
+  font-size: 15px;
+  width: calc(100% - 30px);
+}
+
+
+.join-button {
+  background-color: #c5bbed;
+  margin-right: 20px;
+  color: white;
   border-radius: 190px;
   padding: 15px;
   font-size: 15px;

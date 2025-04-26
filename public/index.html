@@ -2,11 +2,11 @@
 <html lang="en">
     <head>
         <script src="Functions.js"></script>
-        <meta name="description" content="Predict the chance of a snowday in your area. Works worldwide using your location and offers a suite of preset locations across Canada and United States if your location is unavailable.">
+        <meta name="description" content="Multiplayer emoji guessing game.">
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="icon" type="image/x-icon" href="icon.ico">
-        <title>Snowday Predictor</title>
+        <title>SignalSketch</title>
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-GD3FT0P5LB"></script>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9057466430366128"
      crossorigin="anonymous"></script>
@@ -34,7 +34,7 @@
         <section class="paymentContainer" style="padding: 5px; border-radius: 20px;">
             <div class="sectionContainer" id="camera">
                 <span class="recent-text">People:</span>
-                <select size="2" id="sessions" onchange="switchSession()" style="font-family: 'Montserrat', sans-serif; padding: 15px;border-radius: 10px; outline: none; border: none; border-width: 0; max-width: 100%; height: 90%; display: block; width: 100%; color: black;">
+                <select size="2" id="sessions" onchange="switchSession()" style="font-family: 'Montserrat', sans-serif; padding: 15px;border-radius: 10px; outline: none; border: none; border-width: 0; max-width: 100%; height: 40%; display: block; width: 100%; color: black;">
                     <option aria-label="Automatic" selected="selected" value="0">Add people joined here</option>
                     <!-- <option aria-label="Ottawa" value="1">Ottawa</option>
                     <option aria-label="Montreal" value="2">Montreal</option>
@@ -44,12 +44,13 @@
                     <option aria-label="San Francisco" value="6">San Francisco</option>
                     <option aria-label="Los Angeles" value="7">Los Angeles</option> -->
                 </select>
-                <div class ='toggle-switch' onclick="myFunction()">
+                <div class='toggle-switch' onclick="myFunction()">
                     <label class="label-1" onclick="myFunction()">
                         <input id="dark-slider" class="input-1" type = 'checkbox' >
                         <div class = 'slider' onclick="myFunction()"></div>
                     </label>
                 </div>
+                
                 <div class="messaging">
                     
                 </div>
@@ -74,75 +75,12 @@
                         <!-- <div style="position: relative; display: inline-block; cursor: pointer;" onclick="startLoading()">                                  -->
                     <!-- </div> -->
 
-                <div class="table-holder" style="display: none;">
-                    <div class="scrollable-table">
-                        <table class="weather-info">
-                            <tr id="dow">
-                            </tr>
-                            <tr class="table-elements" id="chance"> 
-                                <td class="column-elements" >
-                                    <div id="chance-element-1">Snow day chance</div>
-                                    <div class="chat-container">
-                                        <div class="container" id="daily-scale">
-                                            <span style="--meter-value: 75;" class="progress-bar" id="progress-bar-1"></span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="column-elements" >
-                                    <div id="chance-element-2">Snow day chance</div>
-                                    <div class="chat-container">
-                                        <div class="container" id="daily-scale">
-                                            <span style="--meter-value: 75;" class="progress-bar" id="progress-bar-2"></span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="column-elements" >
-                                    <div id="chance-element-3">Snow day chance</div>
-                                    <div class="chat-container">
-                                        <div class="container" id="daily-scale">
-                                            <span style="--meter-value: 75;" class="progress-bar" id="progress-bar-3"></span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="column-elements" >
-                                    <div id="chance-element-4">Snow day chance</div>
-                                    <div class="chat-container">
-                                        <div class="container" id="daily-scale">
-                                            <span style="--meter-value: 75;" class="progress-bar" id="progress-bar-4"></span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="column-elements" >
-                                    <div id="chance-element-5">Snow day chance</div>
-                                    <div class="chat-container">
-                                        <div class="container" id="daily-scale">
-                                            <span style="--meter-value: 75;" class="progress-bar" id="progress-bar-5"></span>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="table-elements" id="snow">
-                            </tr>
-                            <tr class="table-elements" id="perciptattion-chance">
-                            </tr>
-                            <tr class="table-elements" id="perciptattion">
-                            </tr>
-                            <tr class="table-elements" id="wind">
-                            </tr>
-                            <tr class="table-elements" id="temp"> 
-                            </tr>
-                            <tr class="table-elements" id="visibility">
-                            </tr>
-                            <tr class="table-elements" id="uv-index">
-                            </tr>
-                            <tr class="table-elements" id="visibility">
-                            </tr>
-                        </table>
-                    </div>
+                <div class="table-holder" style="display: block;">
+                    
                         <h3 class="snowday-text">Snowdays this year</h3>
                         <div class="container-2" id="chatbox">
                             
-                            <input id="integerInput" class="textbox" type="number" min="0" step="1" placeholder="Enter amount of snowdays" onkeydown="checkEnter(event)">
+                            <input id="integerInput" class="textbox" type="number" min="0" step="1" placeholder="Input Emojis Here" onkeydown="checkEnter(event)">
                             <div style="position: relative; display: inline-block; cursor: pointer;">                                
                                 <button class="chat-button" id="chat-button">
                                     <span class="material-symbols-outlined" id="chatIcons" onclick="enter()">send</span> 
