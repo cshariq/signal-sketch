@@ -49,7 +49,24 @@
                         <button id="create-room-btn" class="join-button">Create Room</button>
                         <button id="join-room-btn" class="join-button">Join</button>
                     </div>
-                    
+                    <div class="messaging">
+                        <h1 style="padding: 10px;">Chat</h1>
+                        <div class="messages" id="messageContainer">
+                            <div class="messages" id="messageContainer">
+                                <!-- Chat messages will be dynamically inserted here -->
+                            </div>
+                        </div>
+                        <div class="chat-container">
+                            <div class="container" id="chatbox">
+                                <input class="textbox" placeholder="Enter Answer" onkeydown="checkEnter(event)">
+                                <div style="position: relative; display: inline-block; cursor: pointer;" onclick="startLoading()">
+                                    <!-- <button class="send-button" id="send-button"> -->
+                                        <span class="material-symbols-outlined" id="sendIcon">send</span> 
+                                    <!-- </button> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div id="game-config" style="display: none; margin-top: 15px;">
                         <div class="game-mode-selection">
                             <div class="mode-title">Select Game Mode:</div>
