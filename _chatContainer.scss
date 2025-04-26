@@ -44,15 +44,24 @@ $text-box-color: #000000;
 }
 
 .chat-container {
+  display: flex;
   color: white;
   padding: 10px;
   border-radius: 10px;
-  position: relative;
-  bottom: 0px;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  height: 50;
+  width: 100%;
+  // bottom : 0px;
+  // top: 100px;
+  position: absolute;
+  bottom: 0;
+  // position: absolute;
+  // bottom: 5%;
+  // left: 50%;
+  // transform: translateX(-50%);
+  // width: 90%;
+  // right: 0;
+  // margin: 0;
+  // height: 50;
+
 }
 
 .messages {
@@ -193,10 +202,10 @@ $text-box-color: #000000;
 }
 
 .container {
+  display: flex;
   bottom: 10px;
-  height: 50px;
-  width: calc(100% - 30px);
-  margin: 15px;
+  height: 55px;
+  width: 100%;
   background-color: #212121;
   border-radius: 100px;
   padding: 10px;
@@ -380,7 +389,7 @@ $text-box-color: #000000;
 }
 
 #chatIcons {
-  margin: 10px;
+  margin: 1px;
 }
 
 .chat-button {
@@ -397,6 +406,23 @@ $text-box-color: #000000;
   color: white;
   cursor: pointer;  
   z-index: 10;
+}
+
+#sendIcon {
+  margin: 0px;
+  position: relative;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  width: 35px;
+  height: 35px;
+  font-size: 20px;
+  background-color: rgb(92, 92, 92);
+  box-shadow: #000000;
+  border: none;
+  border-radius: 100px;
+  color: white;
+  cursor: pointer; 
 }
 
 .popup {

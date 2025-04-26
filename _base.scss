@@ -99,7 +99,7 @@ html, body {
 body {
     background-color: $background-color;
     transition: background-color 0.5s;
-    // height: 100%;
+    height: 100%;
 }
 .paymentContainer {
     background-color: #ecf4fe;
@@ -117,6 +117,7 @@ body {
         color: white;
     }
     .sectionContainer {
+        height: auto;
         background-color: #1c252d;
         color: white;
     }
@@ -185,6 +186,7 @@ body {
 }
 
 section {
+    height: auto;
     margin: 14px;
     margin-top: 14px;
     margin-bottom: 14px;
