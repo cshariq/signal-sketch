@@ -6,13 +6,13 @@
 }
 
 .toggle-switch {
-  display: block;
+  display: inline-block;
   position: relative;
   width: 80px; /* 200px / 2.5 */
 }
 @media (max-width: 1300px) {
   .toggle-switch {
-    display: none;
+    display: inline-block;
   }
 }
 .label-1 {

@@ -27,7 +27,7 @@ $text-box-color: #000000;
 }
 @media only screen and (max-width: 1300px) { 
   .sectionContainer { 
-    height: 100% !important; 
+    height: auto; 
     display: flex; 
     flex-direction: column; 
   } 
@@ -127,7 +127,7 @@ $text-box-color: #000000;
   } 
 }
 
-.textbox {
+.textbox, .messagebox {
   flex-grow: 1;
   font-family: "Montserrat", sans-serif;
   color: #ffffff;
@@ -140,7 +140,7 @@ $text-box-color: #000000;
   margin-right: 15px;
 }
 
-.textbox::placeholder {
+.textbox::placeholder, .messagebox::placeholder {
   color:#afafaf;
   font-family: "Comfortaa", sans-serif;
   font-weight: lighter;
@@ -161,7 +161,7 @@ $text-box-color: #000000;
 }
 
 .percentage-text{
-  font-size: 99px;
+  font-size: 50px;
   font-family: sans-serif;
   color: black;
   align-items: center;
@@ -250,15 +250,18 @@ $text-box-color: #000000;
 
 
 .join-button {
-  background-color: #c5bbed;
-  margin-right: 20px;
+  text-align: center;
+  display: flex;
+  background-color: #68bae6;
   color: white;
   border-radius: 190px;
   padding: 15px;
   font-size: 15px;
-  width: calc(50% - 30px);
+  width: calc(20% - 30px);
 }
-
+.join-button:hover{
+  background-color: black ;
+}
 .container > .progress-bar[style*="100"] {
 	border-top-right-radius: 100px;
 	border-bottom-right-radius: 100px;

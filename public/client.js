@@ -307,7 +307,7 @@ function updateLeaderboard(players) {
 }
 // Game UI Functions
 function showEntrySection() {
-    entrySection.style.display = 'block';
+    entrySection.style.display = 'flex';
     gameContainer.style.display = 'none';
     leaveRoomBtn.style.display = 'none'; 
     gameConfig.style.display = 'none';
@@ -333,7 +333,7 @@ function resetJoinUI() {
     nameInput.placeholder = "Enter Your Name";
     nameInput.value = '';
     playerName = '';
-    createRoomBtn.style.display = 'inline-block'; 
+    createRoomBtn.style.display = 'flex'; 
     createRoomBtn.style.width = '50%'; 
     joinRoomBtn.style.width = '50%'; 
 }
@@ -349,7 +349,7 @@ function showRoomCodeInput() {
 
 function showRoomSection(roomCode) {
     entrySection.style.display = 'none';
-    leaveRoomBtn.style.display = 'inline-block';
+    leaveRoomBtn.style.display = 'flex';
     roomSection.querySelector('#percentage-text').textContent = `Room Code: ${roomCode}`;
     currentRoomCode = roomCode;
     

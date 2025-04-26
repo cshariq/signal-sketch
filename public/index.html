@@ -17,7 +17,7 @@
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="../static/styles/dist/css/style.css">
         <link rel="stylesheet" href="newstyles.css">
     </head>
 <body>
@@ -29,7 +29,24 @@
                 <div id="player-list" class="player-list">
                     <!-- Dynamic player list populated by JS -->
                 </div>
-                
+                <div class="messaging">
+                    <h1 style="padding: 10px;">Chat</h1>
+                    <div class="messages" id="messageContainer">
+                        <div class="messages" id="messageContainer">
+                            <!-- Chat messages will be dynamically inserted here -->
+                        </div>
+                    </div>
+                    <div class="chat-container">
+                        <div class="container" id="chatbox">
+                            <input class="messagebox" placeholder="Enter Answer" onkeydown="checkEnterChat(event)">
+                            <!-- <div style="position: relative; display: inline-block; cursor: pointer;" onclick="startLoading()"> -->
+                                <!-- <button class="send-button" id="send-button"> -->
+                                    <span class="material-symbols-outlined" id="sendIcon">send</span> 
+                                <!-- </button> -->
+                            <!-- </div> -->
+                        </div>
+                    </div>
+                </div>
                 <div class='toggle-switch' onclick="myFunction()">
                     <label class="label-1" onclick="myFunction()">
                         <input id="dark-slider" class="input-1" type="checkbox">
@@ -49,24 +66,7 @@
                         <button id="create-room-btn" class="join-button">Create Room</button>
                         <button id="join-room-btn" class="join-button">Join</button>
                     </div>
-                    <div class="messaging">
-                        <h1 style="padding: 10px;">Chat</h1>
-                        <div class="messages" id="messageContainer">
-                            <div class="messages" id="messageContainer">
-                                <!-- Chat messages will be dynamically inserted here -->
-                            </div>
-                        </div>
-                        <div class="chat-container">
-                            <div class="container" id="chatbox">
-                                <input class="textbox" placeholder="Enter Answer" onkeydown="checkEnter(event)">
-                                <div style="position: relative; display: inline-block; cursor: pointer;" onclick="startLoading()">
-                                    <!-- <button class="send-button" id="send-button"> -->
-                                        <span class="material-symbols-outlined" id="sendIcon">send</span> 
-                                    <!-- </button> -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
                     <div id="game-config" style="display: none; margin-top: 15px;">
                         <div class="game-mode-selection">
                             <div class="mode-title">Select Game Mode:</div>

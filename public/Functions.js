@@ -306,7 +306,7 @@ async function sendMessage() {
   });
 
   try {
-      const input = document.querySelector('.textbox').value.trim();
+      const input = document.querySelector('.messagebox').value.trim();
       if (!input) return; // Prevent empty messages
 
       const newMessage = document.createElement('div');
@@ -315,7 +315,7 @@ async function sendMessage() {
 
       const chatContainer = document.querySelector('.messages');
       chatContainer.insertBefore(newMessage, chatContainer.querySelector('.container'));
-      document.querySelector('.textbox').value = '';
+      document.querySelector('.messagebox').value = '';
       chatContainer.scrollTop = chatContainer.scrollHeight;
 
       const response = await fetch('/send_message', {
@@ -350,8 +350,8 @@ function receiveMessage() {
       .catch(error => console.error('Error:', error));
 }
 
-function checkEnter(event) {
-  const textbox = document.querySelector('.textbox');
+function checkEnterChat(event) {
+  const textbox = document.querySelector('.messagebox');
   const chatButton = document.getElementById('sendIcon');
 
   if (event.key === 'Enter' && textbox.value.trim() !== '') {

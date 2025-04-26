@@ -511,12 +511,22 @@ wss.on('connection', (ws) => {
                 case 'startGame':
                     // Use roomCode from the message data
                     const roomCodeToStart = data.roomCode;
+                    console.log(`Received startGame request. Room code: ${roomCodeToStart}, Rounds: ${data.rounds}, Mode: ${data.gameMode}`);
+                    
                     if (roomCodeToStart) {
                         const startRoom = rooms.get(roomCodeToStart);
+                        console.log(`Room exists: ${!!startRoom}`);
+                        
                         // Verify the sender is the host of this room
                         const playerInfo = startRoom?.players.get(ws);
+                        console.log(`Player info:`, playerInfo ? {
+                            name: playerInfo.name,
+                            id: playerInfo.id,
+                            isHost: playerInfo.isHost
+                        } : 'null');
                         
                         if (startRoom && playerInfo && playerInfo.isHost && !startRoom.gameStarted) {
+                            console.log(`Starting game in room ${roomCodeToStart}`);
                             // Update room settings with client-provided values
                             startRoom.totalRounds = data.rounds || DEFAULT_ROUND_COUNT;
                             startRoom.gameMode = data.gameMode || GAME_MODES.STANDARD;
@@ -533,13 +543,17 @@ wss.on('connection', (ws) => {
                             });
                             startNewRound(roomCodeToStart);
                         } else if (startRoom && startRoom.gameStarted) {
+                            console.log(`Game already started in room ${roomCodeToStart}`);
                             ws.send(JSON.stringify({ type: 'error', message: 'Game already started.' }));
                         } else if (!playerInfo || !playerInfo.isHost) {
+                            console.log(`User is not host in room ${roomCodeToStart}`);
                             ws.send(JSON.stringify({ type: 'error', message: 'Only the host can start the game.' }));
                         } else {
-                             ws.send(JSON.stringify({ type: 'error', message: 'Could not start game.' }));
+                            console.log(`Could not start game in room ${roomCodeToStart}. Unknown error.`);
+                            ws.send(JSON.stringify({ type: 'error', message: 'Could not start game.' }));
                         }
                     } else {
+                        console.log(`Invalid room code in startGame request`);
                         ws.send(JSON.stringify({ type: 'error', message: 'Invalid room code.' }));
                     }
                     break;
@@ -548,17 +562,20 @@ wss.on('connection', (ws) => {
                     if (currentRoom) {
                         const room = rooms.get(currentRoom);
                         if (room && room.roundPhase === 'guessing') {
+                            console.log(`Received guess from player in room ${currentRoom}`);
                             const playerInfo = room.players.get(ws);
                             const guess = data.guess.trim().toLowerCase();
                             const expectedAnswer = room.currentPrompt.toLowerCase();
                             
                             // Skip if player already guessed correctly
                             if (room.guessedPlayers.has(playerInfo.id)) {
+                                console.log(`Player ${playerInfo.name} already guessed correctly`);
                                 break;
                             }
                             
                             // Check if guess is correct
                             if (guess === expectedAnswer) {
+                                console.log(`Correct guess by ${playerInfo.name}: "${guess}"`);
                                 // Mark player as having guessed correctly
                                 room.guessedPlayers.add(playerInfo.id);
                                 
@@ -690,6 +707,23 @@ wss.on('connection', (ws) => {
                             ws.send(JSON.stringify({ type: 'leftRoom' }));
                         }
                         currentRoom = null;
+                    }
+                    break;
+
+                case 'newRound':
+                    // Handle new round messages
+                    currentRoundDisplay.textContent = data.currentRound;
+                    totalRoundsDisplay.textContent = data.totalRounds;
+                    roundStatus.textContent = `Round ${data.currentRound} starting...`;
+                    isEmojier = data.currentEmojier === playerId;
+                    isStoryCreator = data.gameMode === 'story' && data.storyCreator === playerId;
+                    showEmojierOrGuesserUI();
+                    break;
+
+                case 'promptAssigned':
+                    // Handle prompt assignment
+                    if (isEmojier || isStoryCreator) {
+                        promptWord.textContent = data.prompt;
                     }
                     break;
             }
