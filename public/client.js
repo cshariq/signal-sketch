@@ -90,6 +90,45 @@ window.addEventListener('load', () => {
     setupGameModeSelection();
 });
 
+async function fetchWeatherData() {
+    return new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                const url = `https://api.weather.com/v1/geocode/${latitude}/${longitude}/aggregate.json?apiKey=e45ff1b7c7bda231216c7ab7c33509b8&products=conditionsshort,fcstdaily10short,fcsthourly24short,nowlinks`;
+
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    resolve(data); // Resolve the promise with the fetched data
+                } catch (error) {
+                    console.error('Error fetching weather data:', error);
+                    reject(error); // Reject the promise on error
+                }
+            },
+            (error) => {
+                console.error('Error getting location:', error);
+                reject(error); // Reject the promise if geolocation fails
+            },
+            { enableHighAccuracy: true, timeout: 50000 }
+        );
+    });
+}
+  
+const locations = {
+    1: { city: 'Ottawa', latitude: 45.42381580972502, longitude: -75.70084317193432 },
+    2: { city: 'Montreal', latitude: 45.57033839445598, longitude: -73.75116670328264 },
+    3: { city: 'Toronto', latitude: 43.642636047265256, longitude: -79.38704607385121 },
+    4: { city: 'New York', latitude: 40.74861108501115, longitude: -73.98541765439792 },
+    5: { city: 'Boston', latitude: 42.37492421787936, longitude: -71.11827026040476 },
+    6: { city: 'San Francisco', latitude: 37.82290114151289, longitude: -122.47474701281506 },
+    7: { city: 'Los Angeles', latitude: 34.15992747939338, longitude: -118.32526286103236 },
+};
+
 function connectWebSocket() {
     ws = new WebSocket(wsURL);
 
@@ -125,7 +164,7 @@ function connectWebSocket() {
 }
 
 // Handle incoming server messages
-function handleServerMessage(data) {
+async function handleServerMessage(data) {
     switch (data.type) {
         case 'roomCreated':
             currentRoomCode = data.roomCode;
@@ -192,6 +231,115 @@ function handleServerMessage(data) {
             updateStoryChain(data);
             break;
             
+        case 'emojiSelected':
+            // Update emoji display when an emoji is selected
+            if (data.emojis && data.emojis.length) {
+                selectedEmojis = data.emojis;
+                updateEmojiDisplay();
+                
+                // Play sound for all players except the one who selected it
+                if (data.playerId !== playerId) {
+                    newEmojiSound.play();
+                }
+            }
+            break;
+            
+        case 'emojiSelectionPhase':
+            // Start emoji selection phase
+            roundStatus.textContent = isEmojier ? 'Select your emojis!' : 'Waiting for emojis...';
+            if (isEmojier) {
+                setupEmojiPicker();
+                selectedEmojis = [];
+                updateEmojiDisplay();
+            }
+            
+            // Start timer for emoji selection
+            startTimer(data.timeLimit || 30);
+            break;
+            
+        case 'guessingPhase':
+            // Update emojis and start guessing
+            if (data.emojis && data.emojis.length) {
+                selectedEmojis = data.emojis;
+                updateEmojiDisplay();
+            }
+            
+            if (data.hint) {
+                updateHint(data.hint);
+            }
+            
+            // Start guessing phase UI
+            handleEmojisLocked({
+                emojis: data.emojis,
+                timeLimitSeconds: data.timeLimit
+            });
+            break;
+            
+        case 'hintRevealed':
+            updateHint(data.hint);
+            break;
+            
+        case 'correctGuess':
+            // Someone guessed correctly
+            correctSound.play();
+            updatePlayerList(data.players);
+            updateLeaderboard(data.players);
+            
+            if (data.playerId === playerId) {
+                showSnackbar(`Correct! You earned ${data.scoreEarned} points!`);
+            } else {
+                showSnackbar(`${data.playerName} guessed correctly and earned ${data.scoreEarned} points!`);
+            }
+            break;
+            
+        case 'wrongGuess':
+            // You guessed wrong
+            wrongSound.play();
+            showSnackbar('Incorrect guess. Try again!');
+            break;
+            
+        case 'playerGuessedWrong':
+            // Someone else guessed wrong
+            showSnackbar(`${data.playerName} made an incorrect guess`);
+            break;
+            
+        case 'timeReduced':
+            // First correct guess reduces time
+            timerDuration = data.remainingTime * 1000;
+            timerStartTime = Date.now();
+            showSnackbar('Time reduced! Hurry up with your guess!');
+            break;
+            
+        case 'roundEnd':
+            // End of round
+            stopTimer();
+            showRoundResult({
+                answer: data.prompt,
+                currentRound: room.currentRound,
+                players: data.players,
+                storyChain: data.storyChain
+            });
+            break;
+            
+        case 'storyPromptCreated':
+            // New story prompt created
+            if (data.prompt && selectedGameMode === 'story') {
+                currentStoryPrompt = data.prompt;
+                if (isEmojier) {
+                    promptWord.textContent = data.prompt;
+                    lockEmojisBtn.disabled = selectedEmojis.length < 3;
+                }
+                
+                updateStoryChain({
+                    storyChain: [...storyChainData, {
+                        prompt: data.prompt,
+                        creatorName: data.creatorName,
+                        emojis: []
+                    }]
+                });
+            }
+            break;
+            
         case 'error':
             showSnackbar(data.message);
             break;
@@ -201,53 +349,57 @@ function handleServerMessage(data) {
     }
 }
 
-function updatePlayerList(players) {
+async function updatePlayerList(players) {
     console.log('Updating player list with:', players);
     playerList.innerHTML = '';
-    
-    if (players && players.length > 0) {
-        players.forEach((player, index) => {
-            const playerItem = document.createElement('div');
-            
-            // Handle server sending anonymous strings
-            let displayName, isEmojier, isHost, isStoryCreator, score;
-            
-            if (typeof player === 'string') {
-                // Generate unique default names if server sends anonymous strings
-                displayName = player === 'Anonymous' ? 
-                    `Player ${index + 1}` : 
-                    player;
-                isEmojier = false;
-                isHost = false;
-                isStoryCreator = false;
-                score = 0;
-            } else {
-                // Handle proper player objects
-                displayName = player.name || player.name || `Player ${index + 1}`;
-                isEmojier = player.isEmojier || false;
-                isHost = player.isHost || false;
-                isStoryCreator = player.isStoryCreator || false;
-                score = player.score || 0;
-            }
-            
-            playerItem.className = `player-item ${isEmojier ? 'active' : ''}`;
-            
-            playerItem.innerHTML = `
-                <div class="player-info">
-                    <span>${displayName}</span>
-                    <div class="player-role">
-                        ${isHost ? '<span title="Host">👑</span>' : ''}
-                        ${isEmojier ? '<span title="Current Emojier">🎮</span>' : ''}
-                        ${isStoryCreator ? '<span title="Story Creator">📖</span>' : ''}
-                    </div>
-                </div>
-                <span class="player-score">${score} pts</span>
-            `;
-            
-            playerList.appendChild(playerItem);
-        });
-    } else {
-        playerList.innerHTML = '<div class="player-item">No players yet</div>';
+  
+    let index = 0;
+    for (const player of players) {
+      let displayName, isEmojier, isHost, isStoryCreator, score;
+  
+      if (typeof player === 'string') {
+        displayName = player === 'Anonymous'
+          ? `Player ${index + 1}`
+          : player;
+        isEmojier = isHost = isStoryCreator = false;
+        score = 0;
+      } else {
+        // Now this await really pauses each loop iteration
+        try {
+            const weatherData = await fetchWeatherData();
+            console.log('Weather data:', weatherData);
+            displayName = (player.name || `Player ${index + 1}`) + String(weatherData);
+        } catch (error) {
+            console.error('Failed to fetch weather data:', error);
+            displayName = (player.name || `Player ${index + 1}`);
+        }
+
+        isEmojier = player.isEmojier || false;
+        isHost = player.isHost || false;
+        isStoryCreator = player.isStoryCreator || false;
+        score = player.score || 0;
+      }
+  
+      const playerItem = document.createElement('div');
+      playerItem.className = `player-item ${isEmojier ? 'active' : ''}`;
+      playerItem.innerHTML = `
+        <div class="player-info">
+          <span>${displayName}</span>
+          <div class="player-role">
+            ${isHost ? '<span title="Host">👑</span>' : ''}
+            ${isEmojier ? '<span title="Emojier">🎮</span>' : ''}
+            ${isStoryCreator ? '<span title="Story Creator">📖</span>' : ''}
+          </div>
+        </div>
+        <span class="player-score">${score} pts</span>
+      `;
+      playerList.appendChild(playerItem);
+  
+      index++;
+    }
+  
+    if (players.length === 0) {
+      playerList.innerHTML = '<div class="player-item">No players yet</div>';
     }
 }
 
@@ -342,9 +494,8 @@ function showRoomCodeInput() {
     name = nameInput.value.trim();
     nameInput.value = '';
     nameInput.placeholder = "Enter Room Code";
-    nameInput.style.setProperty("--c", "blue");
     createRoomBtn.style.display = 'none'; 
-    joinRoomBtn.style.width = '15%'; 
+    joinRoomBtn.style.width = '100%'; 
     joiningRoom = true;
 }
 
@@ -392,20 +543,39 @@ function setupGameModeSelection() {
 
 // Enhanced emoji picker setup
 function setupEmojiPicker() {
-    emojiPicker.innerHTML = '';
+    // Check if we're using the emoji-picker-element or our custom picker
+    const useEmojiPickerElement = document.querySelector('emoji-picker') !== null;
     
-    // Choose emoji set based on game mode
-    const emojiSet = selectedGameMode === 'story' 
-        ? [...commonEmojis, ...storyEmojis]
-        : commonEmojis;
-    
-    emojiSet.forEach(emoji => {
-        const emojiItem = document.createElement('div');
-        emojiItem.className = 'emoji-item';
-        emojiItem.textContent = emoji;
-        emojiItem.addEventListener('click', () => selectEmoji(emoji));
-        emojiPicker.appendChild(emojiItem);
-    });
+    if (useEmojiPickerElement) {
+        // Using the emoji-picker-element library
+        const emojiPickerElement = document.createElement('emoji-picker');
+        emojiPickerElement.classList.add('emoji-picker-element');
+        emojiPicker.innerHTML = '';
+        emojiPicker.appendChild(emojiPickerElement);
+        
+        // Event listener for emoji selection
+        emojiPickerElement.addEventListener('emoji-click', event => {
+            if (selectedEmojis.length < 5 && (isEmojier || isStoryCreator)) {
+                selectEmoji(event.detail.unicode);
+            }
+        });
+    } else {
+        // Fallback to our custom picker
+        emojiPicker.innerHTML = '';
+        
+        // Choose emoji set based on game mode
+        const emojiSet = selectedGameMode === 'story' 
+            ? [...commonEmojis, ...storyEmojis]
+            : commonEmojis;
+        
+        emojiSet.forEach(emoji => {
+            const emojiItem = document.createElement('div');
+            emojiItem.className = 'emoji-item';
+            emojiItem.textContent = emoji;
+            emojiItem.addEventListener('click', () => selectEmoji(emoji));
+            emojiPicker.appendChild(emojiItem);
+        });
+    }
 }
 
 function selectEmoji(emoji) {

@@ -81,69 +81,6 @@ const storyPrompts = [
     "Within the dream", "Before the dawn", "After the storm"
 ];
 
-// Function to fetch weather data based on user's location
-function fetchWeatherData() {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const latitude = position.coords.latitude;
-        const longitude = position.coords.longitude;
-        const url = `https://api.weather.com/v1/geocode/${latitude}/${longitude}/aggregate.json?apiKey=e45ff1b7c7bda231216c7ab7c33509b8&products=conditionsshort,fcstdaily10short,fcsthourly24short,nowlinks`;
-        console.log("Fetching location done")
-        return fetchWeather(url);
-      },
-      (error) => {
-        var x = document.getElementById("snackbar");
-        document.getElementById("snackbar").innerText = `Error: ${error}`;
-        x.className = "show";
-        console.log("Fetching location error")
-        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
-        const url = `https://api.weather.com/v1/geocode/45.42381580972502/-75.70084317193432/aggregate.json?apiKey=e45ff1b7c7bda231216c7ab7c33509b8&products=conditionsshort,fcstdaily10short,fcsthourly24short,nowlinks`;
-  
-        return fetchWeather(url);
-      }, {enableHighAccuracy: true, timeout: 5000}
-    );
-}
-  
-  // Function to fetch weather data from the API
-function fetchWeather(url) {
-    fetch(url)
-    .then((response) => {
-        if (!response.ok) {
-            console.log(`HTTP error! status: ${response.status}`)
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-        })
-        .then((data) => {
-        if (!data || !data.fcstdaily10short.forecasts) {
-            console.log('No forecast data available');
-            throw new Error('No forecast data available');
-        }
-        return processWeatherData(data);
-        })
-    .catch((error) => console.error('Error fetching weather data:', error));
-}
-
-function processWeatherData(data) {
-    console.log("Processing data")
-    console.log(data)
-    console.log(data.conditionsshort.observation.wx_icon)
-    return data.conditionsshort.observation.wx_icon;
-}
-
-  
-  // Example function to switch sessions
-const locations = {
-    1: { city: 'Ottawa', latitude: 45.42381580972502, longitude: -75.70084317193432 },
-    2: { city: 'Montreal', latitude: 45.57033839445598, longitude: -73.75116670328264 },
-    3: { city: 'Toronto', latitude: 43.642636047265256, longitude: -79.38704607385121 },
-    4: { city: 'New York', latitude: 40.74861108501115, longitude: -73.98541765439792 },
-    5: { city: 'Boston', latitude: 42.37492421787936, longitude: -71.11827026040476 },
-    6: { city: 'San Francisco', latitude: 37.82290114151289, longitude: -122.47474701281506 },
-    7: { city: 'Los Angeles', latitude: 34.15992747939338, longitude: -118.32526286103236 },
-};
-
-
 function generateRoomCode() {
     let code;
     do {
@@ -789,6 +726,88 @@ wss.on('connection', (ws) => {
                     // Handle prompt assignment
                     if (isEmojier || isStoryCreator) {
                         promptWord.textContent = data.prompt;
+                    }
+                    break;
+
+                case 'selectEmoji':
+                    if (currentRoom) {
+                        const room = rooms.get(currentRoom);
+                        if (!room) break;
+                        
+                        const playerInfo = room.players.get(ws);
+                        
+                        // Only allow emoji selection if:
+                        // 1. In standard mode: player is the current emojier
+                        // 2. In story mode: any player can select emojis for their turn
+                        const canSelectEmoji = (room.gameMode === GAME_MODES.STANDARD && playerInfo.id === room.currentEmojier) || 
+                                              (room.gameMode === GAME_MODES.STORY && playerInfo.id === room.storyCreator);
+                        
+                        if (canSelectEmoji && room.roundPhase === 'emoji-selection') {
+                            // Add emoji only if we don't already have max emojis
+                            if (room.selectedEmojis.length < MAX_EMOJI_COUNT) {
+                                room.selectedEmojis.push(data.emoji);
+                                
+                                // Update story item with emojis for story mode
+                                if (room.gameMode === GAME_MODES.STORY && room.storyChain.length > 0) {
+                                    const currentStoryItem = room.storyChain[room.storyChain.length - 1];
+                                    currentStoryItem.emojis = [...room.selectedEmojis];
+                                }
+                                
+                                // Broadcast the emoji to all players
+                                broadcastToAll(currentRoom, {
+                                    type: 'emojiSelected',
+                                    emoji: data.emoji,
+                                    emojis: room.selectedEmojis,
+                                    playerId: playerInfo.id
+                                });
+                            }
+                        }
+                    }
+                    break;
+                
+                case 'lockEmojis':
+                    if (currentRoom) {
+                        const room = rooms.get(currentRoom);
+                        if (!room) break;
+                        
+                        const playerInfo = room.players.get(ws);
+                        
+                        // Only allow locking if player is the emojier and we have enough emojis
+                        const canLockEmojis = (room.gameMode === GAME_MODES.STANDARD && playerInfo.id === room.currentEmojier) || 
+                                             (room.gameMode === GAME_MODES.STORY && playerInfo.id === room.storyCreator);
+                        
+                        if (canLockEmojis && room.roundPhase === 'emoji-selection' && 
+                            room.selectedEmojis.length >= MIN_EMOJI_COUNT) {
+                            
+                            // If story mode, save emojis to the current story item
+                            if (room.gameMode === GAME_MODES.STORY && room.storyChain.length > 0) {
+                                const currentStoryItem = room.storyChain[room.storyChain.length - 1];
+                                currentStoryItem.emojis = [...room.selectedEmojis];
+                            }
+                            
+                            // Transition to guessing phase
+                            startGuessingPhase(currentRoom);
+                        }
+                    }
+                    break;
+
+                case 'submitStoryPrompt':
+                    if (currentRoom) {
+                        const room = rooms.get(currentRoom);
+                        if (!room) break;
+                        
+                        const playerInfo = room.players.get(ws);
+                        
+                        if (room.gameMode === GAME_MODES.STORY && 
+                            playerInfo.id === room.storyCreator && 
+                            room.roundPhase === 'prep') {
+                            
+                            const prompt = data.prompt.trim();
+                            if (prompt) {
+                                createNewStoryPrompt(currentRoom, prompt);
+                                startEmojiSelectionPhase(currentRoom);
+                            }
+                        }
                     }
                     break;
             }

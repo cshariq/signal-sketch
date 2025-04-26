@@ -481,3 +481,15 @@
     width: 100%;
   }
 }
+.custom-placeholder::-webkit-input-placeholder {
+  color: red;
+  opacity: 0.4;
+}
+.custom-placeholder:-ms-input-placeholder {
+  color: red;
+  opacity: 0.4;
+}
+.custom-placeholder::placeholder {
+  color: red;
+  opacity: 0.4;
+}
