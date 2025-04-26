@@ -1,13 +1,18 @@
-const nameInput = document.getElementById('name');
-const roomCodeInput = document.getElementById('room-code');
-const createRoomBtn = document.getElementById('create-room-btn');
-const joinRoomBtn = document.getElementById('join-room-btn');
-const entrySection = document.getElementById('entry-section');
-const roomSection = document.getElementById('room-section');
-const displayRoomCode = document.getElementById('display-room-code');
-const playerList = document.getElementById('player-list');
-const errorMessage = document.getElementById('error-message');
-const statusMessage = document.getElementById('status-message');
+const nameInput = document.getElementById('joinCode');
+const createRoomBtn = document.getElementById('create-room-btn'); 
+const joinRoomBtn = document.getElementById('join-room-btn');     
+const leaveRoomBtn = document.getElementById('leave-room-btn');
+const entrySection = document.querySelector('.join-element');
+const roomSection = document.querySelector('.table-holder');
+const displayRoomCode = document.getElementById('percentage-text');
+const playerList = document.getElementById('sessions');
+const errorMessage = document.getElementById('snackbar');
+const statusMessage = document.getElementById('snackbar');
+const peopleSection = document.getElementById('camera'); 
+
+let playerName = '';
+let joiningRoom = false;
+let currentRoomCode = null;
 
 const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 const wsURL = `${wsProtocol}//${window.location.host}`; 
@@ -28,82 +33,90 @@ function connectWebSocket() {
             handleServerMessage(data);
         } catch (error) {
             console.error('Failed to parse message or invalid JSON:', event.data, error);
-            errorMessage.textContent = 'Received invalid data from server.';
+            showSnackbar('Received invalid data from server.');
         }
     };
 
     ws.onerror = (error) => {
         console.error('WebSocket error:', error);
-        errorMessage.textContent = 'WebSocket connection error. Please try refreshing.';
+        showSnackbar('WebSocket connection error. Please try refreshing.');
         showEntrySection(); 
     };
 
     ws.onclose = () => {
         console.log('WebSocket connection closed');
         if (!errorMessage.textContent) {
-             errorMessage.textContent = 'Connection closed. Please refresh to reconnect.';
+             showSnackbar('Connection closed. Please refresh to reconnect.');
         }
         showEntrySection();
     };
 }
 
-function handleServerMessage(data) {
-    errorMessage.textContent = ''; 
-    statusMessage.textContent = ''; 
-
-    switch (data.type) {
-        case 'roomCreated':
-            showRoomSection(data.roomCode, data.players);
-            statusMessage.textContent = `Room created. Share code: ${data.roomCode}`;
-            break;
-        case 'joinedRoom':
-            showRoomSection(data.roomCode, data.players);
-            statusMessage.textContent = `Joined room ${data.roomCode}.`;
-            break;
-        case 'playerJoined':
-            updatePlayerList(data.players);
-            statusMessage.textContent = `${data.name} joined the room.`;
-            break;
-        case 'playerLeft':
-            updatePlayerList(data.players);
-            statusMessage.textContent = `${data.name} left the room.`;
-            break;
-        case 'error':
-            errorMessage.textContent = `Error: ${data.message}`;
-            if (data.message === 'Room not found') {
-                showEntrySection(); 
-                roomCodeInput.focus(); 
-            }
-            break;
-
-        default:
-            console.log('Unknown message type:', data.type);
-    }
-}
-
 function updatePlayerList(players) {
-    playerList.innerHTML = ''; 
-    players.forEach(name => {
-        const li = document.createElement('li');
-        li.textContent = name;
-        playerList.appendChild(li);
+    
+    playerList.innerHTML = '';
+    
+    
+    const defaultOption = document.createElement('option');
+    defaultOption.textContent = players.length > 0 ? `People in room (${players.length})` : 'No people in room yet';
+    defaultOption.value = "0";
+    defaultOption.setAttribute('aria-label', 'Automatic');
+    defaultOption.selected = true;
+    playerList.appendChild(defaultOption);
+    
+    
+    players.forEach((name, index) => {
+        const option = document.createElement('option');
+        option.textContent = name;
+        option.value = index + 1;
+        option.setAttribute('aria-label', name);
+        playerList.appendChild(option);
     });
+    
+    
+    peopleSection.style.display = 'block';
 }
 
 function showEntrySection() {
     entrySection.style.display = 'block';
     roomSection.style.display = 'none';
+    leaveRoomBtn.style.display = 'none'; 
+    
+    if (joiningRoom) {
+        resetJoinUI();
+    }
 
-    displayRoomCode.textContent = '';
-    playerList.innerHTML = '';
-    statusMessage.textContent = '';
-    roomCodeInput.value = ''; 
+    displayRoomCode.textContent = 'Join Code:';
+    playerList.innerHTML = '<option aria-label="Automatic" selected="selected" value="0">Add people joined here</option>';
+    nameInput.value = ''; 
+    currentRoomCode = null;
+}
+
+function resetJoinUI() {
+    joiningRoom = false;
+    nameInput.placeholder = "Enter Your Name";
+    nameInput.value = '';
+    playerName = '';
+    createRoomBtn.style.display = 'inline-block'; 
+    createRoomBtn.style.width = '50%'; 
+    joinRoomBtn.style.width = '50%'; 
+}
+
+function showRoomCodeInput() {
+    playerName = nameInput.value.trim();
+    nameInput.value = '';
+    nameInput.placeholder = "Enter Room Code";
+    createRoomBtn.style.display = 'none'; 
+    joinRoomBtn.style.width = '100%'; 
+    joiningRoom = true;
 }
 
 function showRoomSection(roomCode, players) {
     entrySection.style.display = 'none';
     roomSection.style.display = 'block';
-    displayRoomCode.textContent = roomCode;
+    leaveRoomBtn.style.display = 'inline-block'; 
+    displayRoomCode.textContent = `Join Code: ${roomCode}`;
+    currentRoomCode = roomCode;
     updatePlayerList(players);
 }
 
@@ -111,7 +124,7 @@ function sendMessage(data) {
     if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify(data));
     } else {
-        errorMessage.textContent = 'Not connected to the server. Please wait or refresh.';
+        showSnackbar('Not connected to the server. Please wait or refresh.');
         console.error('WebSocket is not connected.');
         if (!ws || ws.readyState === WebSocket.CLOSED) {
             connectWebSocket();
@@ -119,40 +132,118 @@ function sendMessage(data) {
     }
 }
 
+
+function showSnackbar(message) {
+    errorMessage.textContent = message;
+    errorMessage.className = "show";
+    setTimeout(function(){ errorMessage.className = errorMessage.className.replace("show", ""); }, 3000);
+}
+
+
+function checkEnter(event) {
+    if (event.key === 'Enter') {
+        if (!joiningRoom) {
+            
+            createRoomBtn.click();
+        } else {
+            
+            joinRoomBtn.click();
+        }
+    }
+}
+
 createRoomBtn.addEventListener('click', () => {
     const name = nameInput.value.trim();
     if (!name) {
-        errorMessage.textContent = 'Please enter your name.';
+        showSnackbar('Please enter your name.');
         nameInput.focus();
         return;
     }
     if (!ws || ws.readyState !== WebSocket.OPEN) {
-        errorMessage.textContent = 'Connecting... please wait and try again.';
+        showSnackbar('Connecting... please wait and try again.');
         connectWebSocket(); 
         return;
     }
+    playerName = name;
     sendMessage({ type: 'createRoom', name: name });
 });
 
 joinRoomBtn.addEventListener('click', () => {
-    const name = nameInput.value.trim();
-    const roomCode = roomCodeInput.value.trim().toUpperCase();
-    if (!name) {
-        errorMessage.textContent = 'Please enter your name.';
-        nameInput.focus();
-        return;
+    if (!joiningRoom) {
+        
+        const name = nameInput.value.trim();
+        if (!name) {
+            showSnackbar('Please enter your name.');
+            nameInput.focus();
+            return;
+        }
+        showRoomCodeInput();
+    } else {
+        
+        const roomCode = nameInput.value.trim().toUpperCase();
+        if (!roomCode) {
+            showSnackbar('Please enter a room code.');
+            nameInput.focus();
+            return;
+        }
+        
+        if (!ws || ws.readyState !== WebSocket.OPEN) {
+            showSnackbar('Connecting... please wait and try again.');
+            connectWebSocket(); 
+            return;
+        }
+        
+        
+        sendMessage({ type: 'joinRoom', name: playerName, roomCode: roomCode });
     }
-    if (!roomCode) {
-        errorMessage.textContent = 'Please enter a room code.';
-        roomCodeInput.focus();
-        return;
-    }
-     if (!ws || ws.readyState !== WebSocket.OPEN) {
-        errorMessage.textContent = 'Connecting... please wait and try again.';
-        connectWebSocket(); 
-        return;
-    }
-    sendMessage({ type: 'joinRoom', name: name, roomCode: roomCode });
 });
+
+
+leaveRoomBtn.addEventListener('click', () => {
+    
+    showEntrySection();
+    
+    
+    if (ws && ws.readyState === WebSocket.OPEN && currentRoomCode) {
+        sendMessage({ type: 'leaveRoom', roomCode: currentRoomCode });
+    }
+});
+
+function handleServerMessage(data) {
+    switch (data.type) {
+        case 'roomCreated':
+            showRoomSection(data.roomCode, data.players);
+            showSnackbar(`Room created. Share code: ${data.roomCode}`);
+            resetJoinUI();
+            break;
+        case 'joinedRoom':
+            showRoomSection(data.roomCode, data.players);
+            showSnackbar(`Joined room ${data.roomCode}.`);
+            resetJoinUI();
+            break;
+        case 'playerJoined':
+            updatePlayerList(data.players);
+            showSnackbar(`${data.name} joined the room.`);
+            break;
+        case 'playerLeft':
+            updatePlayerList(data.players);
+            showSnackbar(`${data.name} left the room.`);
+            break;
+        case 'error':
+            showSnackbar(`Error: ${data.message}`);
+            if (data.message === 'Room not found') {
+                nameInput.value = '';
+                nameInput.focus();
+            }
+            break;
+        case 'leftRoom':
+            
+            showEntrySection();
+            break;
+        default:
+            console.log('Unknown message type:', data.type);
+    }
+}
+
 
 connectWebSocket();

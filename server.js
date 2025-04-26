@@ -112,6 +112,29 @@ wss.on('connection', (ws) => {
                     }
                     break;
 
+                case 'leaveRoom':
+                    if (currentRoom) {
+                        const room = rooms.get(currentRoom);
+                        if (room) {
+                            room.players.delete(ws);
+                            const remainingPlayers = getPlayerList(currentRoom);
+                            
+                            if (room.players.size === 0) {
+                                rooms.delete(currentRoom);
+                                console.log(`Room ${currentRoom} closed.`);
+                            } else {
+                                broadcast(currentRoom, { 
+                                    type: 'playerLeft', 
+                                    name: playerName, 
+                                    players: remainingPlayers 
+                                }, ws);
+                                console.log(`${playerName} left room ${currentRoom}. Remaining: ${remainingPlayers.join(', ')}`);
+                            }
+                            ws.send(JSON.stringify({ type: 'leftRoom' }));
+                        }
+                        currentRoom = null;
+                    }
+                    break;
             }
         } catch (error) {
             console.error('Failed to process message or invalid JSON:', message, error);
